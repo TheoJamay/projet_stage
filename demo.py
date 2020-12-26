@@ -1,9 +1,25 @@
+""" projet stage.
+----------------------------------------------------------------
+Nom : Jamay
+Prénom : Théo
+Cursus : M1 BI
+----------------------------------------------------------------
+"""
+
+
+from Bio.PDB import *
 import os
 import sys
-from Bio.PDB import *
-import wget
+
 
 def extraction (pdb_filename) :
+	"""Convertion d'un fichier DSSP en fichier : AA = S2
+
+    Parameters
+    ----------
+    pdb_filename : str
+        Nom du fichier qui contient la séquence au format DSSP.
+    """
 	parser = PDBParser()
 	io = PDBIO()
 	structure = parser.get_structure(pdb_filename, pdb_filename + ".pdb")
@@ -28,6 +44,20 @@ def extraction (pdb_filename) :
 
 
 def dssp_converter (filename_dssp) :
+	"""Extraction sous forme de tableau la séquences en aa, la s2 sous forme 
+	8 états et sous forme 3 états.
+
+    Parameters
+    ----------
+    filename_dssp : str
+        Nom du fichier qui contient : AA = S2 8 états = S2 3 états.
+
+    Returns
+    -------
+    dict
+        3 tableaux de valeurs : aa_dssp = AA, s2_8_dssp = S2 8 états
+        s2_3_dssp = S2 3 états
+    """
 	aa_dssp = []
 	s2_8_dssp = []
 	s2_3_dssp = []
@@ -41,6 +71,19 @@ def dssp_converter (filename_dssp) :
 
 
 def psipred_converter (filename_psipred) :
+	"""Extraction sous forme de tableau la séquences en aa et de la s2
+	d'un fichier psipred.
+
+    Parameters
+    ----------
+    filename_psipred : str
+        Nom du fichier output psipred.
+
+    Returns
+    -------
+    dict
+        2 tableaux de valeurs : aa_psipred = AA, s2_psipred = S2 3 états
+    """
 	aa_psipred = []
 	s2_psipred = []
 	with open(filename_psipred, "r") as output_psipred :
@@ -57,6 +100,14 @@ def psipred_converter (filename_psipred) :
 
 
 def q3_calculator(aa_psipred, s2_psipred, aa_dssp, s2_8_dssp, s2_3_dssp) :
+	"""Calcul du pourcentage Q3 et du taux d'erreur pour une S2 spécifique
+
+    Parameters
+    ----------
+    aa_psipred, s2_psipred, aa_dssp, s2_8_dssp, s2_3_dssp : tableaux de str
+        aa_psipred = AA, s2_psipred = S2, aa_dssp = AA, s2_8_dssp = S2 8 états, 
+        s2_3_dssp = S2 3 états
+    """
 	H = 0; I = 0; G = 0; B = 0; E = 0; T = 0; S = 0; C = 0
 	pred_ok = len(aa_dssp)
 	if len(aa_psipred) != len(aa_dssp) :
@@ -95,15 +146,13 @@ for i in range(0, len(liste)) :
 		
 		extraction(simple)
 
-		#url = "https://www.rcsb.org/fasta/entry/"+simple+"/download"
-		#filename = wget.download(url)
-		#os.system("wget https://www.rcsb.org/fasta/entry/"+simple+"/download \
-			#-O "+simple+".fasta")
+		os.system("wget https://www.rcsb.org/fasta/entry/"+simple+"/download \
+			-O "+simple+".fasta")
 
 		aa_dssp, s2_8_dssp, s2_3_dssp = dssp_converter(simple)
 		aa_psipred, s2_psipred = psipred_converter("rcsb_pdb_1FKQ.horiz")
 
 		q3_calculator(aa_psipred, s2_psipred, aa_dssp, s2_8_dssp, s2_3_dssp)
 
-		#os.system("../../../../psipred/./runpsipred_single rcsb_pdb_"+simple+  \
+		#os.system("../../../..e/psipred/./runpsipred_single rcsb_pdb_"+simple+  \
 		#".fasta")
